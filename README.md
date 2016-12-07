@@ -2,16 +2,17 @@
 
 A VHDL implementation of the Minimal Machine processor taught at the Karlsruhe Institute of Technology.
 
-![left: MIMA architecture, top right: memory mapped screen, bottom right: monitoring suite](mimafpga.png)
+![left: MIMA architecture, top right: memory mapped screen, bottom right: monitoring suite](mimaFPGA.png)
 
 ### Table of contents
 
 - [Introduction](#introduction)
 - [Features](#features)
 - [VHDL Component description](#vhdl-component-description)
-    + [Top Module: MIMAProcessor.vhd](#top-module--mimaprocessorvhd)
-    + [Top Module: MIMAEnvironment.vhd](#top-module------mimaenvironmentvhd)
-- [How to get this running on your FPGA?](#how-to-get-this-running-on-your-fpga-)
+    + [Top Module: MIMAProcessor.vhd](#top-module-mimaprocessorvhd)
+    + [Top Module: MIMAEnvironment.vhd](#top-module-mimaenvironmentvhd)
+- [How to get this running on your FPGA?](#how-to-get-this-running-on-your-fpga)
+      - [VERY IMPORTANT NOTE](#very-important-note)
 - [MIMA Specification](#mima-specification)
   * [Architecture of the MIMA](#architecture-of-the-mima)
     + [Registers](#registers)
@@ -21,7 +22,7 @@ A VHDL implementation of the Minimal Machine processor taught at the Karlsruhe I
     + [Op-Codes](#op-codes)
 - [Advanced description of the MIMA architecture](#advanced-description-of-the-mima-architecture)
   * [Execution cycle](#execution-cycle)
-  * [Micro Instruction format](#micro-instruction-format)
+  * [Micro instruction format](#micro-instruction-format)
   * [Memory timing](#memory-timing)
 - [Mentions](#mentions)
 - [More stuff needing some work](#more-stuff-needing-some-work)
