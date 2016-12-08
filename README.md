@@ -12,7 +12,6 @@ A VHDL implementation of the Minimal Machine processor taught at the Karlsruhe I
     + [Top Module: MIMAProcessor.vhd](#top-module-mimaprocessorvhd)
     + [Top Module: MIMAEnvironment.vhd](#top-module-mimaenvironmentvhd)
 - [How to get this running on your FPGA?](#how-to-get-this-running-on-your-fpga)
-      - [VERY IMPORTANT NOTE](#very-important-note)
 - [MIMA Specification](#mima-specification)
   * [Architecture of the MIMA](#architecture-of-the-mima)
     + [Registers](#registers)
