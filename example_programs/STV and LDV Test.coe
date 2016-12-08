@@ -1,0 +1,21 @@
+;START: JMP 0x8000
+;*=0x8000
+;LDC 0x8080
+;STV 0x0001
+;LDC 0
+;STV 0x0002
+;LDC 0
+;LDV 0x0001
+;fin: JMP fin
+
+memory_initialization_radix=16;
+memory_initialization_vector=
+008080,
+200001,
+000000,
+200002,
+000000,
+100001,
+808006;
+
+;STV and LDV work in Heap if acc = 0x8080 after execution

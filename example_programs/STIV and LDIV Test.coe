@@ -1,0 +1,23 @@
+;START: JMP 0x8000
+;*= 0x8000
+
+
+;first: LDC 2
+;STV 1
+;LDC 0
+;NOT
+;STIV 1
+;LDC 0
+;LDIV 1
+;fin: JMP fin
+
+memory_initialization_radix=16;
+memory_initialization_vector=
+000002,
+200001,
+000000,
+F10000,
+B00001,
+000000,
+A00001,
+808007;
