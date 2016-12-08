@@ -25,12 +25,12 @@ A VHDL implementation of the Minimal Machine processor taught at the Karlsruhe I
   * [Micro instruction format](#micro-instruction-format)
   * [Memory timing](#memory-timing)
 - [Mentions](#mentions)
-- [More stuff needing some work](#more-stuff-needing-some-work)
+- [More stuff to work on](#more-stuff-to-work-on)
 
 
 ## Introduction
 The Minimal Machine is not just a hypotetical processor anymore. With this project the MIMA becomes a real processor, capable of running even complex programs up to a virtual machine or even an operating system.
-I've provided not just the processor itself, but embedded it in an environment with __Memory__, a 512 by 256 pixel memory mapped __screen__, a __ps/2 interface__ to connect a keyboard, a __register monitoring suite__ and __clock speed control__.
+I've provided not just the processor itself, but embedded it in an environment with __memory__, a 512 by 256 pixel memory mapped __screen__, a __ps/2 interface__ to connect a keyboard, a __register monitoring suite__ and __clock speed control__.
 The memory mapped screen and the monitoring suite are accessible via a vga interface and can be switched between.
 To fully enjoy this design, your FPGA board should be equipped with four buttons, a vga connector and if possible a ps/2 connector.
 
@@ -81,18 +81,18 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 
 ## How to get this running on your FPGA?
 
-The Project is seperated into two folders. The "mima_processor" folder only contains the vhdl files for the MIMA processor, without any adittional functionaly, just as it's specified. The design does not use any ip cores that have to be regenerated, so it should work by selecting the mimaProcessor.vhd as top module.
+The Project is seperated into two folders. The [mima_processor](mima_processor) folder only contains the vhdl files for the MIMA processor itself, without any additional functionality, implemented exactly how it's specified. The design does not use any cores that have to be regenerated, so it should work by selecting the mimaProcessor.vhd as top module.
 
-The "mima_environment" folder contains vhdl files that give the above described additional functionality. This one is a bit trickier to get running, as it requires to regenerate some ipcores. First you will need to include the files from both folders into yout project.
+The [mima_environment](moma_environment) folder contains vhdl files that give the above described additional functionality. This one is a bit trickier to get running, as it requires the regeneration of some ipcores. First you will need to include the files from both folders into your project and select the "MIMAEnvironment.vhd" as top module.
 
-Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, as this is needed by the VGA syncer component to generate the proper vga timing. 
+Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, this is needed by the VGA syncer component to generate the proper vga timing. 
 Next up are three cores located in the "MemoryController.vhd". These cores provide the MIMA with memory. As my developement FPGA was not equipped with enough RAM blocks, I had to shrink the MIMAs accessible memory space. There are three memory regions the MIMA can access: The program rom, a heap area and the screen memory. The program memory in my design is read only and was generated using distributed rom. Program rom data words are 24 bits wide. The heap area is a simple single port ram, containing 16 bit words. For the screen memory use a simple dual port ram, the MIMA can write to it while the syncer component has to be able to acess that ram asynchronously to retrieve the correct pixel data. The screen memory words are 16 bit in width as well.
 
 Finally choose a program, load it into the program rom and enjoy!
-I have provided a few example programs in the example_programs folder, these are stored in xilinx .coe files. If you are working with a different fpga brand you should be fine by opening it with a standard editor and copying out the program code. Apart from that feel free to write own programs and run them, just remember that the program memory starts at address 0x8000! 
+I have provided a few example programs in the [example_programs](example_programs) folder, these are stored in xilinx .coe files. If you are working with a different fpga brand you should be fine by opening it with a standard editor and copying out the program code. Apart from that feel free to write own programs and run them, just remember that the program memory starts at address 0x8000! 
 
 ##### VERY IMPORTANT NOTE
-Make sure all memory cores have exactly one cycle delay for read access (the screen memory too)! Doing otherwise might result in reading the wrong data from memory.
+Make sure all memory cores have exactly one cycle delay for read access (the screen memory too)! Doing otherwise might result in reading the wrong data from memory!
 
 ## MIMA Specification
 
@@ -113,7 +113,7 @@ Make sure all memory cores have exactly one cycle delay for read access (the scr
 #### ALU operations
 
 ALU control	| Operation
-:--------------:|:---------
+:------:|:---------
 000		| do nothing (0 --> Z)
 001		| X + Y --> Z
 010		| rotate X to the right --> Z
@@ -342,17 +342,19 @@ ADDR |OPC       |FUNC                   |Ar Aw X Y Z E Pr Pw Ir Iw Dr Dw S CCC R
 ### Memory timing
 * Memory reads or writes take 3 cycles.
 * After pulling the the Read signal high for 3 cycles, the read data has to be present in the SDR beginning of the 4th cycle.
-* The Read and Write signals can already pulled high in the same cycle it is still written to the SAR or SDR register.
+* The read and rrite signals can already be pulled high in the same cycle that is still written to the SAR or SDR register.
 
-The last point might lead to confusion and misbehaviour if not considered, as it is perfectly valid to write to the sar or sdr registers already at the same cycle the write or read flags for the memory are high.
+The last point might lead to confusion and misbehaviour if not considered, as it is perfectly valid to write to the sar or sdr registers already at the same cycle the write or read signals for the memory are high.
 The problem is that registers are only updated at the rising edge of the next cycle, but the write and read signals are routed directly fom the control unit out of the processor, meaning that the memory controller has to take care of delaying these two signals by one cycle, otherwise faulty reads or worse, writes to wrong memory locations could occurr.
 For example take a look at the implementation of the STV instruction:
 
 __STV a:__     
-> 1: Acc -> SDR
-> 2: IR -> SAR; W = '1'
-> 3: W = '1'
-> 4: W = '1'
+```
+1: Acc -> SDR
+2: IR -> SAR; W = '1'
+3: W = '1'
+4: W = '1'
+```
 
 Consider the memory controller wouldn't add the necessary delay stage for the write signal, the controller would
 get the signal to write aleady in cycle 2, whereas the SAR is updated at the beginning of cycle 3. Thus the memory would write to the address that was stored in the SAR before cycle 3.
@@ -361,7 +363,7 @@ get the signal to write aleady in cycle 2, whereas the SAR is updated at the beg
 * Three files from the ps/2 interface are from [eewiki](https://eewiki.net/pages/viewpage.action?pageId=28278929)
 * To compile your MIMA programs online check out this awesome [project](https://github.com/phiresky/mima)
 
-## More stuff needing some work
+## More stuff to work on
   - design a compiler to run higher level programs
   - optimize hardware and micro instructions to create a faster design
   - develop an extended instruction set
