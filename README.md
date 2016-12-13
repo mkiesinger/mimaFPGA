@@ -35,7 +35,7 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 
 ## Features
 * __register monitoring suite__: The monitoring suite lets you display all the necessary information on your vga monitor. It shows all the register stati, the current micro instruction and the address of the next micro instruction to be executed. It also displays the MIMAs clock frequency. To fully enjoy this, clock the processor down to a slow speed, load a program and enjoy!
-* __memory mapped screen__: The screen is 512x256 pixels in size. You can have the MIMA write to the adresses 0x04000 to 0x5FFF. Every bit in that area represents a pixel on screen. The organisation is as follows: Every word in this segment is 16 bit wide, one word represents a 16 pixel array on screen. 32 such arrays make up one row of the screen.
+* __memory mapped screen__: The screen is 512x256 pixels in size. To display something you can have the MIMA write to the adresses 0x04000 to 0x5FFF. Every bit in that area represents a pixel on screen, the organisation is as follows: Every word in this segment is 16 bit wide, one word represents a 16 pixel array on screen. 32 such arrays make up one row of the screen.
 * __memory__: The MIMA can address 1MiB of Memory containing 24 bit data words. This is far too much for a FPGA that a student could affort. I decided to scale this down and split the memory in distinct segments to serve different purposes:
     * __heap__ spans from 0x00001 to 0x03FFF, 16K locations, 16 bit words, not sign extended
     * __screen memory__ map spans from 0x04000 to 0x05FFF, 8K locations, 16 bit words, write only
