@@ -36,14 +36,14 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 ## Features
 * __register monitoring suite__: The monitoring suite lets you display all the necessary information on your vga monitor. It shows all the register stati, the current micro instruction and the address of the next micro instruction to be executed. It also displays the MIMAs clock frequency. To fully enjoy this, clock the processor down to a slow speed, load a program and enjoy!
 * __memory mapped screen__: The screen is 512x256 pixels in size. To display something you can have the MIMA write to the adresses 0x04000 to 0x5FFF. Every bit in that area represents a pixel on screen, the organisation is as follows: Every word in this segment is 16 bit wide, one word represents a 16 pixel array on screen. 32 such arrays make up one row of the screen.
-* __memory__: The MIMA can address 1MiB of Memory containing 24 bit data words. This is far too much for a FPGA that a student could affort. I decided to scale this down and split the memory in distinct segments to serve different purposes:
-    * __heap__ spans from 0x00001 to 0x03FFF, 16K locations, 16 bit words, not sign extended
+* __memory__: The MIMA can address 1MiB of Memory containing 24 bit data words. This is far too much for a FPGA that a student could afford. I decided to scale this down and split the memory in distinct segments to serve different purposes:
+    * __heap__ spans from 0x00001 to 0x03FFF, 16K locations, 16 bit words, not sign extended (yet)
     * __screen memory__ map spans from 0x04000 to 0x05FFF, 8K locations, 16 bit words, write only
     * __keyborad__ mapping is a single memory location at 0x06000, read only
     * __program rom__ spans from 0x08000 to 0x0FFFF, 32K locations, 24 bit words, read only
-    * address 0x00000 is reserved for a JMP 0x08000 instruction, which is executed first at startup and will make the mima perform a jump to the program rom
-* __clock control__: Assign the speed_up and speed_down inputs of the design to buttons and change the clock speed in a range of 1 Hz to 20 MHz.
-* __keyboard support__: The keyboard can be connected via a ps/2 interface. The ascii value of the last pressed button is written to location 0x06000 in memory and can be accessed there.
+    * address 0x00000 is reserved for a JMP 0x08000 instruction, which is executed first at startup and will let the MIMA perform a jump to the program rom
+* __clock control__: Assign the speed_up and speed_down inputs of the design to buttons and change the clock speed in a range from 1 Hz to 20 MHz.
+* __keyboard support__: The keyboard can be connected via a ps/2 interface. The ascii value of the last pressed key is written to location 0x06000 in memory and can be accessed there.
 
 ## VHDL Component description
 
@@ -82,9 +82,9 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 
 The Project is seperated into two folders. The [mima_processor](mima_processor) folder only contains the vhdl files for the MIMA processor itself, without any additional functionality, implemented exactly how it's specified. The design does not use any cores that have to be regenerated, so it should work by selecting the mimaProcessor.vhd as top module.
 
-The [mima_environment](moma_environment) folder contains vhdl files that give the above described additional functionality. This one is a bit trickier to get running, as it requires the regeneration of some ipcores. First you will need to include the files from both folders into your project and select the "MIMAEnvironment.vhd" as top module.
+The [mima_environment](moma_environment) folder contains vhdl files that give the above described additional functionality. This one is a bit trickier to get running, as it requires the regeneration of some cores. First you will need to include the files from both folders into your project and select the "MIMAEnvironment.vhd" as top module.
 
-Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, this is needed by the VGA syncer component to generate the proper vga timing. 
+Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, this is required for the VGA syncer component to generate the proper vga timing. 
 Next up are three cores located in the "MemoryController.vhd". These cores provide the MIMA with memory. As my developement FPGA was not equipped with enough RAM blocks, I had to shrink the MIMAs accessible memory space. There are three memory regions the MIMA can access: The program rom, a heap area and the screen memory. The program memory in my design is read only and was generated using distributed rom. Program rom data words are 24 bits wide. The heap area is a simple single port ram, containing 16 bit words. For the screen memory use a simple dual port ram, the MIMA can write to it while the syncer component has to be able to acess that ram asynchronously to retrieve the correct pixel data. The screen memory words are 16 bit in width as well.
 
 Finally choose a program, load it into the program rom and enjoy!
