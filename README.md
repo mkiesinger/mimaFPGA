@@ -28,22 +28,22 @@ A VHDL implementation of the Minimal Machine processor taught at the Karlsruhe I
 
 
 ## Introduction
-The Minimal Machine is not just a hypotetical processor anymore. With this project the MIMA becomes a real processor, capable of running even complex programs up to a virtual machine or even an operating system.
+The Minimal Machine is not just a hypothetical processor anymore. With this project the MIMA becomes a real processor, capable of running even complex programs up to a virtual machine or even an operating system.
 I've provided not just the processor itself, but embedded it in an environment with __memory__, a 512 by 256 pixel memory mapped __screen__, a __ps/2 interface__ to connect a keyboard, a __register monitoring suite__ and __clock speed control__.
-The memory mapped screen and the monitoring suite are accessible via a vga interface and can be switched between.
-To fully enjoy this design, your FPGA board should be equipped with four buttons, a vga connector and if possible a ps/2 connector.
+The memory mapped screen and the monitoring suite are accessible via a VGA interface and can be switched between.
+To fully enjoy this design, your FPGA board should be equipped with four buttons, a VGA connector and if possible a ps/2 connector.
 
 ## Features
-* __register monitoring suite__: The monitoring suite lets you display all the necessary information on your vga monitor. It shows all the register stati, the current micro instruction and the address of the next micro instruction to be executed. It also displays the MIMAs clock frequency. To fully enjoy this, clock the processor down to a slow speed, load a program and enjoy!
-* __memory mapped screen__: The screen is 512x256 pixels in size. To display something you can have the MIMA write to the adresses 0x04000 to 0x5FFF. Every bit in that area represents a pixel on screen, the organisation is as follows: Every word in this segment is 16 bit wide, one word represents a 16 pixel array on screen. 32 such arrays make up one row of the screen.
+* __register monitoring suite__: The monitoring suite lets you display all the necessary information on your VGA monitor. It shows all the register states, the current micro instruction and the address of the next micro instruction to be executed. It also displays the MIMAs clock frequency. To fully enjoy this, clock the processor down to a slow speed, load a program and enjoy!
+* __memory mapped screen__: The screen is 512x256 pixels in size. To display something you can have the MIMA write to the addresses 0x04000 to 0x5FFF. Every bit in that area represents a pixel on screen, the organization is as follows: Every word in this segment is 16 bit wide, one word represents a 16 pixel array on screen. 32 such arrays make up one row of the screen.
 * __memory__: The MIMA can address 1MiB of Memory containing 24 bit data words. This is far too much for a FPGA that a student could afford. I decided to scale this down and split the memory in distinct segments to serve different purposes:
     * __heap__ spans from 0x00001 to 0x03FFF, 16K locations, 16 bit words, not sign extended (yet)
     * __screen memory__ map spans from 0x04000 to 0x05FFF, 8K locations, 16 bit words, write only
     * __keyborad__ mapping is a single memory location at 0x06000, read only
     * __program rom__ spans from 0x08000 to 0x0FFFF, 32K locations, 24 bit words, read only
-    * address 0x00000 is reserved for a JMP 0x08000 instruction, which is executed first at startup and will let the MIMA perform a jump to the program rom
+    * address 0x00000 is reserved for a JMP 0x08000 instruction, which is executed first at startup and will let the MIMA perform a jump to the program ROM
 * __clock control__: Assign the speed_up and speed_down inputs of the design to buttons and change the clock speed in a range from 1 Hz to 20 MHz.
-* __keyboard support__: The keyboard can be connected via a ps/2 interface. The ascii value of the last pressed key is written to location 0x06000 in memory and can be accessed there.
+* __keyboard support__: The keyboard can be connected via a ps/2 interface. The ASCII value of the last pressed key is written to location 0x06000 in memory and can be accessed there.
 
 ## VHDL Component description
 
@@ -65,29 +65,29 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 ##### input ports:
 * __speed_up__: STD_LOGIC: low active, speed gets increased at falling edge
 * __speed_down__: STD_LOGIC: low active, speed gets decreased at falling edge 
-* __screen_select__: STD_LOGIC: switch between vga views; 0: monitoring suite, 1: memory mapped screen
+* __screen_select__: STD_LOGIC: switch between VGA views; 0: monitoring suite, 1: memory mapped screen
 * __ps2_clk__: STD_LOGIC: ps/2 keyboard clk input
 * __ps2_data__: STD_LOGIC: ps/2 keyboard data input
 * __reset__: STD_LOGIC: synchronous reset
 * __clk__: STD_LOGIC: system clk
 
 ##### output ports:
-* __r__: STD_LOGIC_VECTOR(4 downto 0): red pixel value for the vga controller
-* __g__: STD_LOGIC_VECTOR(5 downto 0): green pixel value for the vga controller 
-* __b__: STD_LOGIC_VECTOR(4 downto 0): blue pixel value for the vga controller
-* __hsync__: STD_LOGIC: hsync signal for the vga controller
-* __vsync__: STD_LOGIC: vsync signal for the vga controller
+* __r__: STD_LOGIC_VECTOR(4 downto 0): red pixel value for the VGA controller
+* __g__: STD_LOGIC_VECTOR(5 downto 0): green pixel value for the VGA controller 
+* __b__: STD_LOGIC_VECTOR(4 downto 0): blue pixel value for the VGA controller
+* __hsync__: STD_LOGIC: hsync signal for the VGA controller
+* __vsync__: STD_LOGIC: vsync signal for the VGA controller
 
 ## How to get this running on your FPGA?
 
-The Project is seperated into two folders. The [mima_processor](mima_processor) folder only contains the vhdl files for the MIMA processor itself, without any additional functionality, implemented exactly how it's specified. The design does not use any cores that have to be regenerated, so it should work by selecting the mimaProcessor.vhd as top module.
+The Project is separated into two folders. The [mima_processor](mima_processor) folder only contains the VHDL files for the MIMA processor itself, without any additional functionality, implemented exactly how it's specified. This design does not use any cores that have to be regenerated, so it should work by selecting the mimaProcessor.vhd as top module.
 
 The [mima_environment](moma_environment) folder contains vhdl files that give the above described additional functionality. This one is a bit trickier to get running, as it requires the regeneration of some cores. First you will need to include the files from both folders into your project and select the "MIMAEnvironment.vhd" as top module.
 
-Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, this is required for the VGA syncer component to generate the proper vga timing. 
-Next up are three cores located in the "MemoryController.vhd". These cores provide the MIMA with memory. As my developement FPGA was not equipped with enough RAM blocks, I had to shrink the MIMAs accessible memory space. There are three memory regions the MIMA can access: The program rom, a heap area and the screen memory. The program memory in my design is read only and was generated using distributed rom. Program rom data words are 24 bits wide. The heap area is a simple single port ram, containing 16 bit words. For the screen memory use a simple dual port ram, the MIMA can write to it while the syncer component has to be able to acess that ram asynchronously to retrieve the correct pixel data. The screen memory words are 16 bit in width as well.
+Next you will have to regenerate the clock frequency core located in the top Module "MIMAEnvironment.vhd". The output clock must be running at 40 MHz, this is required for the VGA syncer component to generate the proper VGA timing. 
+Next up are three cores located in the "MemoryController.vhd". These cores provide the MIMA with memory. As my developement FPGA was not equipped with enough RAM blocks, I had to shrink the MIMAs accessible memory space. There are three memory regions the MIMA can access: The program ROM, a heap area and the screen memory. The program memory in my design is read only and was generated using distributed ROM. Program ROM data words are 24 bits wide. The heap area is a simple single port ram, containing 16 bit words. For the screen memory use a simple dual port ram, the MIMA can write to it while the syncer component has to be able to acess that ram asynchronously to retrieve the correct pixel data. The screen memory words are 16 bit in width as well.
 
-Finally choose a program, load it into the program rom and enjoy!
+Finally choose a program, load it into the program ROM and enjoy!
 I have provided a few example programs in the [example_programs](example_programs) folder, these are stored in xilinx .coe files. If you are working with a different fpga brand you should be fine by opening it with a standard editor and copying out the program code. Apart from that feel free to write own programs and run them, just remember that the program memory starts at address 0x8000! 
 
 ##### VERY IMPORTANT NOTE
@@ -170,14 +170,14 @@ F3 - FF	|		| free
 
 
 ## Advanced description of the MIMA architecture
-This implementation strictly follows the specifications that were provided in the lectures and tutorials taught at the KIT. Even the micro instructions are the original ones and not optimized, though this might be adressed in the future. This way it is ensured that the implemented processor closely represents the capabilities of the one that is taught in the lectures. Also it is easier using the monitoring suite to follow what is happening. 
+This implementation strictly follows the specifications that were provided in the lectures and tutorials taught at the KIT. Even the micro instructions are the original ones and not optimized, though this might be addressed in the future. This way it is ensured that the implemented processor closely represents the capabilities of the one that is taught in the lectures. In addition it is easier using the monitoring suite to follow what is happening. 
 
 ### Execution cycle
-The first micro instructions executed are located starting from address 0 in the micro instruction rom, which is the FETCH function. It will load the next machine instruction from memory into the IR. After an instruction fetch, the next micro instruction to be executet resides at adress 255. This instruction is special, as the control unit will now look up the function entry point of the micro funtion, which is located somewhere in the micro instruction rom and execute the first instruction of that function next. The function entry points are stored in the function entry rom and looked up based off the OpCode of the machine instruction that was just loaded in the IR. From there on the function will be executed and finally jump back to the FETCH function.
+The first micro instructions executed are located starting from address 0 in the micro instruction ROM, which is the FETCH function. It will load the next machine instruction from memory into the IR. After an instruction fetch, the next micro instruction to be executed resides at address 255. This instruction is special, as the control unit will now look up the function entry point of the micro function, which is located somewhere in the micro instruction ROM and execute the first instruction of that function next. The function entry points are stored in the function entry ROM and looked up based off the OpCode of the machine instruction that was just loaded in the IR. From there on the function will be executed and finally jump back to the FETCH function.
 
 ### Micro instruction format
 
-The micro instructions are the instructions controlling which registers can write to the bus, read from the bus, control the alu operations and send read or write requests to the memory. Each micro instruction also has a NEXT_ADDR field specifying the address of the next micro instruction to be executed. The micro instruction is a 28 bit wide vector where every bit has a specific function, as described below.
+The micro instructions are the instructions controlling which registers can write to the bus, read from the bus, control the ALU operations and send read or write requests to the memory. Each micro instruction also has a NEXT_ADDR field specifying the address of the next micro instruction to be executed. The micro instruction is a 28 bit wide vector where every bit has a specific function, as described below.
 
 
 
@@ -213,9 +213,9 @@ For memory access:
 R: read request
 W: write request
 ```
-The actual used addresses in the micro instrucrion rom:
+The actual used addresses in the micro instrucrion ROM:
 ```
-ADDR: location of the instraction in the micro instruction rom
+ADDR: location of the instraction in the micro instruction ROM
 NEXT_ADDR: next address to execute
 ``` 
     
@@ -334,17 +334,17 @@ ADDR |OPC       |FUNC                   |Ar Aw X Y Z E Pr Pw Ir Iw Dr Dw S CCC R
     |to the decoded functions  
 ```
 ##### Notes
-*  The MIMA architecture diagram displays a negative flag from the accumulator register, but it is nowhere specified how it is adressed. Therefore it is not implemented, leading to the __JMN__ instructions implementation being a bit more complex. To function correctly the JMN instruction uses the SDR as temporary register, therefore the memory controller must only write to the SDR after a read request! 
-* The above described instructions are not optimized to closely mimic the instructions tought in the lectures. But due to the implementation of the bus using multiplexers, for instance the OR instruction could be shortened by writing the Accumulator and the SDR to the bus simultaniously, not using the ALU at all!
+*  The MIMA architecture diagram displays a negative flag from the accumulator register, but it is nowhere specified how it is addressed. Therefore, it is not implemented, leading to the __JMN__ instructions implementation being a bit more complex. To function correctly the JMN instruction uses the SDR as temporary register, therefore the memory controller must only write to the SDR after a read request! 
+* The above described instructions are not optimized to closely mimic the instructions taught in the lectures. But due to the implementation of the bus using multiplexers, for instance the OR instruction could be shortened by writing the Accumulator and the SDR to the bus simultaniously, not using the ALU at all!
 
 
 ### Memory timing
 * Memory reads or writes take 3 cycles.
-* After pulling the the Read signal high for 3 cycles, the read data has to be present in the SDR beginning of the 4th cycle.
-* The read and rrite signals can already be pulled high in the same cycle that is still written to the SAR or SDR register.
+* After pulling the Read signal high for 3 cycles, the read data has to be present in the SDR beginning of the 4th cycle.
+* The read and write signals can already be pulled high in the same cycle that is still written to the SAR or SDR register.
 
-The last point might lead to confusion and misbehaviour if not considered, as it is perfectly valid to write to the sar or sdr registers already at the same cycle the write or read signals for the memory are high.
-The problem is that registers are only updated at the rising edge of the next cycle, but the write and read signals are routed directly fom the control unit out of the processor, meaning that the memory controller has to take care of delaying these two signals by one cycle, otherwise faulty reads or worse, writes to wrong memory locations could occurr.
+The last point might lead to confusion and misbehaviour if not considered, as it is perfectly valid to write to the SAR or SDR registers already at the same cycle the write or read signals for the memory are high.
+The problem is that registers are only updated at the rising edge of the next cycle, but the write and read signals are routed directly from the control unit out of the processor, meaning that the memory controller has to take care of delaying these two signals by one cycle, otherwise faulty reads or worse, writes to wrong memory locations could occur.
 For example take a look at the implementation of the STV instruction:
 
 __STV a:__     
@@ -356,7 +356,7 @@ __STV a:__
 ```
 
 Consider the memory controller wouldn't add the necessary delay stage for the write signal, the controller would
-get the signal to write aleady in cycle 2, whereas the SAR is updated at the beginning of cycle 3. Thus the memory would write to the address that was stored in the SAR before cycle 3.
+get the signal to write already in cycle 2, whereas the SAR is updated at the beginning of cycle 3. Thus the memory would write to the address that was stored in the SAR before cycle 3.
 
 ## Mentions
 * Three files from the ps/2 interface are from [eewiki](https://eewiki.net/pages/viewpage.action?pageId=28278929)
