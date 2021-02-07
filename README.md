@@ -45,38 +45,6 @@ To fully enjoy this design, your FPGA board should be equipped with four buttons
 * __clock control__: Assign the speed_up and speed_down inputs of the design to buttons and change the clock speed in a range from 1 Hz to 20 MHz.
 * __keyboard support__: The keyboard can be connected via a ps/2 interface. The ASCII value of the last pressed key is written to location 0x06000 in memory and can be accessed there.
 
-## VHDL Component description
-
-#### Top Module: MIMAProcessor.vhd
-##### input ports:
-* __mem_din__: STD_LOGIC_VECTOR(23 downto 0): data input from memory, feeds into SDR
-* __mem_sdr_we__: STD_LOGIC: write enable for the internal storage address register. Should be high in the same cycle when new data is present at the mem_din port
-* __rst__: STD_LOGIC: synchronous reset
-* __clk__ : STD_LOGIC: system clock
-
-##### output ports:
-* __mem_dout__: STD_LOGIC_VECTOR(23 downto 0): data output to memory, comes from SDR
-* __mem_addr__: STD_LOGIC_VECTOR(19 downto 0): address output to memory
-* __mem_re__: STD_LOGIC: read signal for read requests
-* __mem_we__: STD_LOGIC: write signal for write requests
-* __monitoring__: MONITORING_SIGNALS: some register values bundled in a record, defined in the mimacommons package
-
-#### Top Module: MIMAEnvironment.vhd
-##### input ports:
-* __speed_up__: STD_LOGIC: low active, speed gets increased at falling edge
-* __speed_down__: STD_LOGIC: low active, speed gets decreased at falling edge 
-* __screen_select__: STD_LOGIC: switch between VGA views; 0: monitoring suite, 1: memory mapped screen
-* __ps2_clk__: STD_LOGIC: ps/2 keyboard clk input
-* __ps2_data__: STD_LOGIC: ps/2 keyboard data input
-* __reset__: STD_LOGIC: synchronous reset
-* __clk__: STD_LOGIC: system clk
-
-##### output ports:
-* __r__: STD_LOGIC_VECTOR(4 downto 0): red pixel value for the VGA controller
-* __g__: STD_LOGIC_VECTOR(5 downto 0): green pixel value for the VGA controller 
-* __b__: STD_LOGIC_VECTOR(4 downto 0): blue pixel value for the VGA controller
-* __hsync__: STD_LOGIC: hsync signal for the VGA controller
-* __vsync__: STD_LOGIC: vsync signal for the VGA controller
 
 ## How to get this running on your FPGA?
 
